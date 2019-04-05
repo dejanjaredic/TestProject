@@ -51,12 +51,13 @@ namespace TestProject.Services.DeviceType
             var allDeviceTypes = _deviceTypeRepository.GetAll().Where(x => x.ParentId == parentId).ToList();
 
 
-            var listDeviceTypes = new DeviceTypeDto();
+            
             
             var list = new List<DeviceTypeDto>();
             foreach (var listType in allDeviceTypes)
             {
-                
+                var listDeviceTypes = new DeviceTypeDto();
+                listDeviceTypes.Id = listType.Id;
                 listDeviceTypes.Name = listType.Name;
                 //listDeviceTypes.Parent = listType.Parent;
                 listDeviceTypes.Description = listType.Description;
