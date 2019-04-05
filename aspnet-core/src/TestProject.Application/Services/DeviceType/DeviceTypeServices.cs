@@ -48,7 +48,24 @@ namespace TestProject.Services.DeviceType
 
         public List<DeviceTypeDto> DeviceTypeTree(int? parentId)
         {
-            // Recursion grupisati pomprednt Id
+            var allDeviceTypes = _deviceTypeRepository.GetAll().Where(x => x.ParentId == parentId).ToList();
+
+
+            var listDeviceTypes = new DeviceTypeDto();
+            
+            var list = new List<DeviceTypeDto>();
+            foreach (var listType in allDeviceTypes)
+            {
+                
+                listDeviceTypes.Name = listType.Name;
+                //listDeviceTypes.Parent = listType.Parent;
+                listDeviceTypes.Description = listType.Description;
+                listDeviceTypes.Children = DeviceTypeTree(listType.Id);
+                list.Add(listDeviceTypes);
+            }
+
+            return ObjectMapper.Map<List<DeviceTypeDto>>(list);
+            //return ObjectMapper.Map<List<DeviceTypeDto>>(allDeviceTypes);
         }
     }
 }

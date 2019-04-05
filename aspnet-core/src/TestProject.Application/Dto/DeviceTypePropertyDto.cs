@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
+using Abp.AutoMapper;
+using TestProject.Models;
 
 namespace TestProject.Dto
 {
+    [AutoMap(typeof(DeviceTypeProperty))]
     public class DeviceTypePropertyDto
     {
         [Required]
