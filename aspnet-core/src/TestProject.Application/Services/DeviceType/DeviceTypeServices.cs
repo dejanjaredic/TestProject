@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Abp.Domain.Repositories;
-using Abp.UI;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using TestProject.Dto;
+using TestProject.Dto.DeviceTypePropertyDtos;
 
 namespace TestProject.Services.DeviceType
 {
@@ -46,27 +44,46 @@ namespace TestProject.Services.DeviceType
             return ObjectMapper.Map<DeviceTypeDto>(device);
         }
 
-        public List<DeviceTypeDto> DeviceTypeTree(int? parentId)
+        public List<DeviceTypeNestedDto> DeviceTypeTree(int? parentId)
         {
             var allDeviceTypes = _deviceTypeRepository.GetAll().Where(x => x.ParentId == parentId).ToList();
-
-
-            
-            
-            var list = new List<DeviceTypeDto>();
+            var list = new List<DeviceTypeNestedDto>();
             foreach (var listType in allDeviceTypes)
             {
-                var listDeviceTypes = new DeviceTypeDto();
+                var listDeviceTypes = new DeviceTypeNestedDto();
                 listDeviceTypes.Id = listType.Id;
                 listDeviceTypes.Name = listType.Name;
-                //listDeviceTypes.Parent = listType.Parent;
+                listDeviceTypes.ParentId = listType.ParentId;
                 listDeviceTypes.Description = listType.Description;
                 listDeviceTypes.Children = DeviceTypeTree(listType.Id);
                 list.Add(listDeviceTypes);
             }
+            return ObjectMapper.Map<List<DeviceTypeNestedDto>>(list);
+        }
 
-            return ObjectMapper.Map<List<DeviceTypeDto>>(list);
-            //return ObjectMapper.Map<List<DeviceTypeDto>>(allDeviceTypes);
+
+        public IEnumerable<DeviceTypePropertiesNestedDto> DeviceTypeTreeWithProperties(int? deviceId)
+        {
+            var allDeviceTypes = _deviceTypeRepository.GetAll().Include(y => y.DeviceTypeProperty).Where(x => x.Id == deviceId).First();
+            var list = new List<DeviceTypePropertiesNestedDto>();
+            
+            var device = new DeviceTypePropertiesNestedDto()
+            {
+                Id = allDeviceTypes.Id,
+                Name = allDeviceTypes.Name,
+                Description = allDeviceTypes.Description,
+                ParentId = allDeviceTypes.ParentId,
+                Properties = ObjectMapper.Map<List<DeviceTypePropertyDto>>(allDeviceTypes.DeviceTypeProperty)
+                
+            };
+            if (allDeviceTypes.ParentId == null)
+            {
+                list.Add(device);
+                return list;
+            }
+            list.Add(device);
+
+            return list.Concat(DeviceTypeTreeWithProperties(allDeviceTypes.ParentId));
         }
     }
 }

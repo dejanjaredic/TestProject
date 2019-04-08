@@ -14,5 +14,7 @@ namespace TestProject.Services.DeviceType
         void Delete(int id);
         List<DeviceTypeDto> GetAll();
         DeviceTypeDto GetById(int id);
+        List<DeviceTypeNestedDto> DeviceTypeTree(int? parentId);
+        IEnumerable<DeviceTypePropertiesNestedDto> DeviceTypeTreeWithProperties(int? deviceId);
     }
 }

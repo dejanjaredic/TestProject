@@ -2,6 +2,9 @@
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using TestProject.Authorization;
+using TestProject.Dto;
+using TestProject.Dto.DeviceTypePropertyDtos;
+using TestProject.Models;
 
 namespace TestProject
 {
@@ -23,8 +26,19 @@ namespace TestProject
 
             Configuration.Modules.AbpAutoMapper().Configurators.Add(
                 // Scan the assembly for classes which inherit from AutoMapper.Profile
-                cfg => cfg.AddProfiles(thisAssembly)
-            );
+                cfg =>
+                {
+                    cfg.AddProfiles(thisAssembly);
+                    cfg.CreateMap<DeviceTypeProperty, DeviceTypePropertyDto>()
+                        .ForMember(dest => dest.NameProperty, source => source.MapFrom(src => src.Name))
+                        .ForMember(dest => dest.Required, source => source.MapFrom(src => src.IsRequired))
+                        .ForMember(dest => dest.Type, source => source.MapFrom(src => src.Type));
+                    cfg.CreateMap<DeviceType, DeviceTypePropertiesNestedDto>()
+                        .ForMember(dest => dest.Name, source => source.MapFrom(src => src.Name))
+                        .ForMember(dest => dest.Description, source => source.MapFrom(src => src.Description))
+                        .ForMember(dest => dest.ParentId, source => source.MapFrom(src => src.Parent.Id))
+                        .ForMember(dest => dest.Properties, source => source.MapFrom(src => src.DeviceTypeProperty));
+                });
         }
     }
 }
