@@ -1,31 +1,48 @@
 ﻿using System;
-using TestProject.Models;
+using System.Collections.Generic;
+using Abp.Domain.Repositories;
+using Abp.UI;
+using Microsoft.EntityFrameworkCore;
+using TestProject.Dto.DeviceDtos;
 
-namespace TestProject.Services
+namespace TestProject.Services.Device
 {
+    
     public class DeviceServices : TestProjectAppServiceBase, IDeviceServices
     {
-        public void Create(Device input)
+        private readonly IRepository<Models.Device> _deviceRepository;
+
+        public DeviceServices(IRepository<Models.Device> deviceRepository)
+        {
+            _deviceRepository = deviceRepository;
+        }
+        public void Create(Models.Device input)
         {
             throw new NotImplementedException();
         }
 
-        public void Edit(int id, Device input)
+        public void Edit(int id, Models.Device input)
         {
             throw new NotImplementedException();
         }
 
         public void Delete(int id)
         {
-            throw new NotImplementedException();
+            var device = _deviceRepository.Get(id);
+            if (device == null)
+            {
+                throw new UserFriendlyException("Nepostojeci uredjaj");
+            }
+            _deviceRepository.Delete(device);
         }
 
-        public Device GetAll()
+        public List<DeviceDto> GetAll()
         {
-            throw new NotImplementedException();
+            var allDevices = _deviceRepository.GetAll().Include(x => x.DeviceType);
+            return  ObjectMapper.Map<List<DeviceDto>>(allDevices);
         }
 
-        public Device GetById(int id)
+        public Models.Device GetById(int id)
         {
             throw new NotImplementedException();
         }

@@ -3,6 +3,7 @@ using Abp.Modules;
 using Abp.Reflection.Extensions;
 using TestProject.Authorization;
 using TestProject.Dto;
+using TestProject.Dto.DeviceTypeDtos;
 using TestProject.Dto.DeviceTypePropertyDtos;
 using TestProject.Models;
 
@@ -32,6 +33,14 @@ namespace TestProject
                     cfg.CreateMap<DeviceTypeProperty, DeviceTypePropertyDto>()
                         .ForMember(dest => dest.NameProperty, source => source.MapFrom(src => src.Name))
                         .ForMember(dest => dest.Required, source => source.MapFrom(src => src.IsRequired))
+                        .ForMember(dest => dest.Type, source => source.MapFrom(src => src.Type));
+                    cfg.CreateMap<DeviceTypeProperty, DeviceTypePropertyCreateDto>()
+                        .ForMember(dest => dest.NameProperty, source => source.MapFrom(src => src.Name))
+                        .ForMember(dest => dest.Required, source => source.MapFrom(src => src.IsRequired))
+                        .ForMember(dest => dest.Type, source => source.MapFrom(src => src.Type));
+                    cfg.CreateMap<DeviceTypePropertyCreateDto, DeviceTypeProperty>()
+                        .ForMember(dest => dest.Name, source => source.MapFrom(src => src.NameProperty))
+                        .ForMember(dest => dest.IsRequired, source => source.MapFrom(src => src.Required))
                         .ForMember(dest => dest.Type, source => source.MapFrom(src => src.Type));
                     cfg.CreateMap<DeviceType, DeviceTypePropertiesNestedDto>()
                         .ForMember(dest => dest.Name, source => source.MapFrom(src => src.Name))

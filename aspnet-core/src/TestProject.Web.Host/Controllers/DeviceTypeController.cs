@@ -21,11 +21,6 @@ namespace TestProject.Web.Host.Controllers
             return View();
         }
 
-        [HttpPost("addtype")]
-        public IActionResult AddDeviceType(DeviceType input)
-        {
-            _deviceTypeServices.Create(input);
-            return Ok();
-        }
+       
     }
 }

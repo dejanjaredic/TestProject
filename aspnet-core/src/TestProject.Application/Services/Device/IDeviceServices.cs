@@ -1,14 +1,15 @@
-﻿using Abp.Application.Services;
-using TestProject.Models;
+﻿using System.Collections.Generic;
+using Abp.Application.Services;
+using TestProject.Dto.DeviceDtos;
 
-namespace TestProject.Services
+namespace TestProject.Services.Device
 {
     public interface IDeviceServices : IApplicationService
     {
-        void Create(Device input);
-        void Edit(int id, Device input);
+        void Create(Models.Device input);
+        void Edit(int id, Models.Device input);
         void Delete(int id);
-        Device GetAll();
-        Device GetById(int id);
+        List<DeviceDto> GetAll();
+        Models.Device GetById(int id);
     }
 }

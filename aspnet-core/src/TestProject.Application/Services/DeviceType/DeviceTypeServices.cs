@@ -2,8 +2,9 @@
 using System.Linq;
 using Abp.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
-using TestProject.Dto;
+using TestProject.Dto.DeviceTypeDtos;
 using TestProject.Dto.DeviceTypePropertyDtos;
+using TestProject.Models;
 
 namespace TestProject.Services.DeviceType
 {
@@ -14,20 +15,46 @@ namespace TestProject.Services.DeviceType
         public DeviceTypeServices(IRepository<Models.DeviceType> deviceTypeRepository)
         {
             _deviceTypeRepository = deviceTypeRepository;
+            
         }
-        public void Create(Models.DeviceType input)
+        public IEnumerable<DeviceTypePropertiesNestedDto>  Create(DeviceTypeCreateDto input)
         {
-            _deviceTypeRepository.Insert(input);
+            if (input.Id == 0)
+            {
+                _deviceTypeRepository.Insert(ObjectMapper.Map<Models.DeviceType>(input));
+            }
+            else
+            {
+                var deviceType = _deviceTypeRepository.Get(input.Id);
+                ObjectMapper.Map(input, deviceType);
+            }
+
+            return DeviceTypeTreeWithProperties(input.ParentId);
+
         }
 
-        public void Edit(int id, Models.DeviceType input)
+        public void CreatePropertyForDeviceTpe(List<DeviceTypePropertyCreateDto> input)
         {
-            _deviceTypeRepository.Update(input);
+            foreach (var property in input)
+            {
+                var getDeviceType = _deviceTypeRepository.Get(property.Id);
+                var addProperty = new DeviceTypePropertyCreateDto()
+                {
+
+                    NameProperty = property.NameProperty,
+                    Required = property.Required,
+                    Type = property.Type
+                };
+
+                getDeviceType.DeviceTypeProperty.Add(ObjectMapper.Map<DeviceTypeProperty>(addProperty));
+
+            }
         }
 
         public void Delete(int id)
         {
-            _deviceTypeRepository.Delete(id);
+            var deviceType = _deviceTypeRepository.Get(id);
+            _deviceTypeRepository.Delete(deviceType);
         }
 
         public List<DeviceTypeDto> GetAll()
