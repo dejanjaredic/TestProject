@@ -4,7 +4,8 @@ using System.Text;
 
 namespace TestProject.Dto.DeviceTypePropertyDtos
 {
-    class DeviceTypePropertyCreateDeviceDto
+    public class DeviceTypePropertyCreateDeviceDto
     {
+        public string PropertyName { get; set; }
     }
 }

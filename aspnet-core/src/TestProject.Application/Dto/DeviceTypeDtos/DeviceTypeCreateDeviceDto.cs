@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 using Abp.Application.Services.Dto;
+using TestProject.Dto.DeviceTypePropertyValueDtos;
 using TestProject.Models;
 
 namespace TestProject.Dto.DeviceTypeDtos
 {
-    public class DeviceTypeCreateDeviceDto : EntityDto
+    public class DeviceTypeCreateDeviceDto
     {
-        public List<DevicePropertyValue> PropValues { get; set; }
+        public int DeviceTypeId { get; set; }
+        public List<PropertyValuesCreateDeviceDto> PropValues { get; set; }
     }
 }

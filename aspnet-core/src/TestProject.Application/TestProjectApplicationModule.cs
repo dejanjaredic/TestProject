@@ -2,7 +2,6 @@
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using TestProject.Authorization;
-using TestProject.Dto;
 using TestProject.Dto.DeviceTypeDtos;
 using TestProject.Dto.DeviceTypePropertyDtos;
 using TestProject.Models;
