@@ -7,7 +7,7 @@ using TestProject.Models;
 
 namespace TestProject.Dto.DeviceDtos
 {
-    public class DeviceCreateDto : EntityDto
+    public class DeviceCreateDto
     {
 
         public int DeviceId { get; set; }

@@ -10,7 +10,7 @@ using TestProject.EntityFrameworkCore;
 namespace TestProject.Migrations
 {
     [DbContext(typeof(TestProjectDbContext))]
-    [Migration("20190404134257_FirstMigration")]
+    [Migration("20190411131947_FirstMigration")]
     partial class FirstMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1327,7 +1327,7 @@ namespace TestProject.Migrations
             modelBuilder.Entity("TestProject.Models.Device", b =>
                 {
                     b.HasOne("TestProject.Models.DeviceType", "DeviceType")
-                        .WithMany()
+                        .WithMany("Devices")
                         .HasForeignKey("DeviceTypeId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

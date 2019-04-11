@@ -11,27 +11,33 @@ namespace TestProject.Services.DeviceType
     public class DeviceTypeServices : TestProjectAppServiceBase, IDeviceTypeServices
     {
         private readonly IRepository<Models.DeviceType> _deviceTypeRepository;
+        private readonly IRepository<DevicePropertyValue> _devicePropValueRepository;
+        private readonly IRepository<Models.Device> _deviceRepository;
 
-        public DeviceTypeServices(IRepository<Models.DeviceType> deviceTypeRepository)
+        public DeviceTypeServices(IRepository<Models.DeviceType> deviceTypeRepository, IRepository<DevicePropertyValue> devicePropValueRepository, IRepository<Models.Device> deviceRepository)
         {
             _deviceTypeRepository = deviceTypeRepository;
-            
+            _devicePropValueRepository = devicePropValueRepository;
+            _deviceRepository = deviceRepository;
         }
         public IEnumerable<DeviceTypePropertiesNestedDto>  Create(DeviceTypeCreateDto input)
         {
             if (input.Id == 0)
             {
-                _deviceTypeRepository.Insert(ObjectMapper.Map<Models.DeviceType>(input));
+                int id = _deviceTypeRepository.InsertAndGetId(ObjectMapper.Map<Models.DeviceType>(input));
+                return DeviceTypeTreeWithProperties(id);
             }
             else
             {
                 var deviceType = _deviceTypeRepository.Get(input.Id);
                 ObjectMapper.Map(input, deviceType);
+                return DeviceTypeTreeWithProperties(input.Id);
             }
 
-            return DeviceTypeTreeWithProperties(input.ParentId);
-
+           
         }
+
+       
 
         public void CreatePropertyForDeviceTpe(List<DeviceTypePropertyCreateDto> input)
         {
@@ -51,10 +57,45 @@ namespace TestProject.Services.DeviceType
             }
         }
 
-        public void Delete(int id)
+        public IEnumerable<Models.DeviceType> GetTypesWithProp(int deviceId)
         {
-            var deviceType = _deviceTypeRepository.Get(id);
-            _deviceTypeRepository.Delete(deviceType);
+            var type = _deviceTypeRepository.GetAll().Include(y => y.DeviceTypeProperty).Where(x => x.Id == deviceId).First();
+            var list = new List<Models.DeviceType>();
+            var childList = _deviceTypeRepository.GetAll().Include(y => y.DeviceTypeProperty).Where(x => x.ParentId == deviceId);
+           
+            if (!childList.Any())
+            {
+                list.Add(type);
+                return list;
+            }
+
+            foreach (var child in childList)
+            {
+                list.AddRange(GetTypesWithProp(child.Id));
+            }
+            list.Add(type);
+
+            return list;
+        }
+
+        public void DeleteType(int id)
+        {
+            var list = _deviceRepository.GetAll().Include(x => x.DevicePropertyValue).Where(x => x.DeviceType.Id == id);
+            var getAllWithChilds = GetTypesWithProp(id).ToList();
+            var getOrderedChildren = getAllWithChilds.OrderByDescending(x => x.Id);
+            foreach (var devices in list)
+            {
+                foreach (var deviceValue in devices.DevicePropertyValue)
+                {
+                    _devicePropValueRepository.Delete(deviceValue);
+                }
+                _deviceRepository.Delete(devices);
+            }
+            foreach (var type in getOrderedChildren)
+            {
+                _deviceTypeRepository.Delete(type);
+            }
+
         }
 
         public List<DeviceTypeDto> GetAll()
@@ -67,7 +108,6 @@ namespace TestProject.Services.DeviceType
         public DeviceTypeDto GetById(int id)
         {
             var device = _deviceTypeRepository.Get(id);
-
             return ObjectMapper.Map<DeviceTypeDto>(device);
         }
 
@@ -82,7 +122,7 @@ namespace TestProject.Services.DeviceType
                 listDeviceTypes.Name = listType.Name;
                 listDeviceTypes.ParentId = listType.ParentId;
                 listDeviceTypes.Description = listType.Description;
-                listDeviceTypes.Children = DeviceTypeTree(listType.Id);
+                listDeviceTypes.Items = DeviceTypeTree(listType.Id);
                 list.Add(listDeviceTypes);
             }
             return ObjectMapper.Map<List<DeviceTypeNestedDto>>(list);
@@ -103,6 +143,11 @@ namespace TestProject.Services.DeviceType
                 Properties = ObjectMapper.Map<List<DeviceTypePropertyDto>>(allDeviceTypes.DeviceTypeProperty)
                 
             };
+            if (_deviceTypeRepository.GetAll().Count() == 1)
+            {
+                list.Add(device);
+                return list;
+            }
             if (allDeviceTypes.ParentId == null)
             {
                 list.Add(device);

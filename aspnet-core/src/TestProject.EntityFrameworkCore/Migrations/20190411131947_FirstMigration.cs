@@ -25,7 +25,7 @@ namespace TestProject.Migrations
                         column: x => x.ParentId,
                         principalTable: "DeviceTypes",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
@@ -69,7 +69,7 @@ namespace TestProject.Migrations
                         column: x => x.DeviceTypeId,
                         principalTable: "DeviceTypes",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -91,12 +91,7 @@ namespace TestProject.Migrations
                         principalTable: "Devices",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_DevicePropertyValues_DeviceTypeProperties_DeviceTypePropertyId",
-                        column: x => x.DeviceTypePropertyId,
-                        principalTable: "DeviceTypeProperties",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                   
                 });
 
             migrationBuilder.CreateIndex(

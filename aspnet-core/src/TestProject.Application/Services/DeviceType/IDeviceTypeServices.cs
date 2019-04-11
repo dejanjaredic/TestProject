@@ -7,7 +7,7 @@ namespace TestProject.Services.DeviceType
     public interface IDeviceTypeServices : IApplicationService
     {
         IEnumerable<DeviceTypePropertiesNestedDto> Create(DeviceTypeCreateDto input);
-        void Delete(int id);
+        void DeleteType(int id);
         List<DeviceTypeDto> GetAll();
         DeviceTypeDto GetById(int id);
         List<DeviceTypeNestedDto> DeviceTypeTree(int? parentId);

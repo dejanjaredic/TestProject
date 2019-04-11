@@ -51,7 +51,7 @@ namespace TestProject.Services.Device
                 }
             }
 
-            if (input.Id == 0)
+            if (input.DeviceId == 0)
             {
                 var newDevice = new Models.Device();
                 newDevice.Name = device.DeviceName;
@@ -79,7 +79,7 @@ namespace TestProject.Services.Device
             }
             else
             {
-                var oldDevice = _deviceRepository.GetAll().Include(x => x.DevicePropertyValue).FirstOrDefault(x => x.Id == input.Id);
+                var oldDevice = _deviceRepository.GetAll().Include(x => x.DevicePropertyValue).FirstOrDefault(x => x.Id == input.DeviceId);
                 oldDevice.Name = input.DeviceName;
                 oldDevice.Description = input.Description;
 

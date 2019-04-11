@@ -14,6 +14,7 @@ namespace TestProject.Models
         [Required]
         public string Description { get; set; }
         [CanBeNull] public DeviceType Parent { get; set; }
+        public List<Device> Devices { get; set;} = new List<Device>();
         public List<DeviceTypeProperty> DeviceTypeProperty { get; set; } = new List<DeviceTypeProperty>();
     }
 }

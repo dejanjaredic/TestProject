@@ -1325,7 +1325,7 @@ namespace TestProject.Migrations
             modelBuilder.Entity("TestProject.Models.Device", b =>
                 {
                     b.HasOne("TestProject.Models.DeviceType", "DeviceType")
-                        .WithMany()
+                        .WithMany("Devices")
                         .HasForeignKey("DeviceTypeId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
