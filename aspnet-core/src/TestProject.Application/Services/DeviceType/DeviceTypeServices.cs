@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using Abp.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -98,6 +99,50 @@ namespace TestProject.Services.DeviceType
 
         }
 
+        public List<DeviceTypePropertyDto> GetTypeProperties(int typeId)
+        {
+            var getTypesAndProp = DeviceTypeTreeWithProperties(typeId);
+            var propList = new List<DeviceTypePropertyDto>();
+            foreach (var type in getTypesAndProp)
+            {
+                foreach (var prop in type.Properties)
+                {
+                    propList.Add(prop);
+                }
+            }
+
+            return propList;
+        }
+
+        public List<ExpandoObject> GetAllDevicesByType(int id)
+        {
+            var getallDevices = _deviceRepository.GetAll().Include(x => x.DevicePropertyValue)
+                .Where(y => y.DeviceTypeId == id);
+            var allProp = GetTypesWithProp(id);
+
+            var allDeviceWithProp = new List<ExpandoObject>();
+
+            foreach (var device in getallDevices)
+            {
+                IDictionary<string, object> allDevice = new ExpandoObject();
+                allDevice.Add("Name", device.Name);
+                allDevice.Add("Description", device.Description);
+                foreach (var prop in allProp)
+                {
+                    //allDevice.Add(prop.Name, null);
+                    foreach (var value in device.DevicePropertyValue)
+                    {
+                        allDevice.Add(prop.Name, value.Value);
+                    }
+
+                }
+
+                allDeviceWithProp.Add((ExpandoObject) allDevice);
+            }
+
+            return allDeviceWithProp;
+        }
+
         public List<DeviceTypeDto> GetAll()
         {
              var devices = _deviceTypeRepository.GetAll().Include(x => x.DeviceTypeProperty);
@@ -155,7 +200,7 @@ namespace TestProject.Services.DeviceType
             }
             list.Add(device);
 
-            return list.Concat(DeviceTypeTreeWithProperties(allDeviceTypes.ParentId));
+            return list.Concat(DeviceTypeTreeWithProperties(allDeviceTypes.ParentId)).OrderBy(x => x.Id);
         }
     }
 }
