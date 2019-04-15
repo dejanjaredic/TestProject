@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Abp.Domain.Repositories;
 using Abp.UI;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 using Microsoft.EntityFrameworkCore;
 using TestProject.Dto.DeviceDtos;
 using TestProject.Dto.DeviceTypeDtos;
 using TestProject.Dto.DeviceTypePropertyValueDtos;
+using TestProject.Dto.QueryInfoDtos;
 using TestProject.Models;
 using TestProject.Services.DeviceType;
+using Expression = Castle.DynamicProxy.Generators.Emitters.SimpleAST.Expression;
 
 namespace TestProject.Services.Device
 {
@@ -137,6 +141,29 @@ namespace TestProject.Services.Device
         public Models.Device GetById(int id)
         {
             throw new NotImplementedException();
+        }
+
+        public IQueryable SearchFilter(QueryInfo input)
+        {
+            QueryInfo info = new QueryInfo();
+            var result = _deviceRepository.GetAll().Include(x => x.DeviceType).Include(x => x.DevicePropertyValue);
+            var ruleInputs = input.Filter.Rules;
+
+            Expression<Func<Models.Device, bool >> whereLambdaExpression = null;
+            BinaryExpression binWhereExp = null;
+
+            ParameterExpression parExp = ParameterExpression.Parameter(typeof(Models.Device), "x");
+            Expression findExp = null;
+
+
+            
+
+            return result;
+        }
+        // Izlistati Rool rekurzijom
+        public List<Rules> RuleTree(int? parentId)
+        {
+
         }
     }
 }
