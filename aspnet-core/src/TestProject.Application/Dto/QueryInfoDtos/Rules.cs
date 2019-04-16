@@ -10,7 +10,7 @@ namespace TestProject.Dto.QueryInfoDtos
         public string Operator { get; set; }
         public string Value { get; set; }
         public string Condition { get; set; }
-        public int ParentId { get; set; }
+        //public int? ParentId { get; set; }
         public List<Rules> Rule { get; set; } = new List<Rules>();
     }
 }

@@ -7,6 +7,6 @@ namespace TestProject.Dto.QueryInfoDtos
     public class Filter
     {
         public string Condition { get; set; }
-        public List<Rules> Rules { get; set; } = new List<Rules>();
+        public List<Rules> Rule { get; set; } = new List<Rules>();
     }
 }

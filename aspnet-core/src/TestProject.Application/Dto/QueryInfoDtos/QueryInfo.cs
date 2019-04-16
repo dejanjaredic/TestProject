@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using Abp.UI;
+using TestProject.Models;
 
 namespace TestProject.Dto.QueryInfoDtos
 {
@@ -66,6 +67,13 @@ namespace TestProject.Dto.QueryInfoDtos
             return false;
         }
 
+        public Expression<Func<TEntity, bool>> GetWhereLambda<TEntity>(Expression binaryExp,
+            ParameterExpression parameter)
+        {
+            var lambdaExp = Expression.Lambda<Func<TEntity, bool>>(binaryExp, parameter);
+            return lambdaExp;
+        }
+
         public BinaryExpression GetBinaryExpressionForInt(string op, Expression propExpression,
             ConstantExpression constant)
         {
@@ -116,6 +124,74 @@ namespace TestProject.Dto.QueryInfoDtos
             var convert = Expression.Convert(access, typeof(object));
             var finalExp = Expression.Lambda<Func<TEntity, object>>(convert, param);
             return finalExp;
+        }
+
+        public Expression FilterRuleNested<TEntity>(ParameterExpression param, List<Rules> input, string condition)
+        {
+            Expression result;
+            if (condition == "and")
+            {
+                result = Expression.Constant(true, typeof(bool));
+            }
+            else
+            {
+                result = Expression.Constant(false, typeof(bool));
+            }
+            
+            
+            foreach (var rul in input)
+            {
+                Expression prperty = Expression.Property(param, rul.Property);
+                var type = prperty.Type;
+                var convertValue = Convert.ChangeType(rul.Value, type);
+                var constant = Expression.Constant(convertValue);
+
+                BinaryExpression binary;
+                switch (convertValue)
+                {
+                    case string _:
+                        binary = GetBinaryExpressionForString(rul.Operator, prperty, constant);
+                        break;
+                    case int _:
+                        binary = GetBinaryExpressionForInt(rul.Operator, prperty, constant);
+                        break;
+                    default:
+                        throw new UserFriendlyException($"Neocekivani tip vrijednosti '{type.Name}'");
+                }
+
+                switch (condition)
+                {
+                    case "and":
+                        result = Expression.AndAlso(result, binary);
+                        break;
+                    case "or":
+                        result = Expression.OrElse(result, binary);
+                        break;
+                    default:
+                        throw new UserFriendlyException($"Neocekivani tip vrijednosti '{type.Name}'");
+                }
+
+                if (rul.Condition == null)
+                {
+                    continue;
+                }
+
+                switch (condition)
+                {
+                    case "and":
+                        result = Expression.AndAlso(result, FilterRuleNested<TEntity>(param, rul.Rule, rul.Condition));
+                        break;
+                    case "or":
+                        result = Expression.OrElse(result, FilterRuleNested<TEntity>(param, rul.Rule, rul.Condition));
+                        break;
+                    default:
+                        throw new UserFriendlyException($"Neocekivani tip vrijednosti '{type.Name}'");
+                }
+                
+            }
+
+            
+            return result;
         }
 
 

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using Abp.Domain.Repositories;
 using Abp.UI;
-using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 using Microsoft.EntityFrameworkCore;
 using TestProject.Dto.DeviceDtos;
 using TestProject.Dto.DeviceTypeDtos;
@@ -12,7 +11,6 @@ using TestProject.Dto.DeviceTypePropertyValueDtos;
 using TestProject.Dto.QueryInfoDtos;
 using TestProject.Models;
 using TestProject.Services.DeviceType;
-using Expression = Castle.DynamicProxy.Generators.Emitters.SimpleAST.Expression;
 
 namespace TestProject.Services.Device
 {
@@ -143,27 +141,106 @@ namespace TestProject.Services.Device
             throw new NotImplementedException();
         }
 
-        public IQueryable SearchFilter(QueryInfo input)
+        public List<Models.Device> SearchFilter(QueryInfo input)
         {
             QueryInfo info = new QueryInfo();
-            var result = _deviceRepository.GetAll().Include(x => x.DeviceType).Include(x => x.DevicePropertyValue);
-            var ruleInputs = input.Filter.Rules;
+            var getAllDevice = _deviceRepository.GetAll();
+            var ruleInputs = input.Filter.Rule;
+            var condition = input.Filter.Condition;
+            Expression result;
+            
+            var sorters = input.Sorters;
+            Expression containsExpression = Expression.Constant(false);
+            Expression currContains;
 
-            Expression<Func<Models.Device, bool >> whereLambdaExpression = null;
+
+            Expression<Func<Models.Device, bool>> whereLambdaExpression = null;
             BinaryExpression binWhereExp = null;
 
-            ParameterExpression parExp = ParameterExpression.Parameter(typeof(Models.Device), "x");
+           
+            ParameterExpression parExp = Expression.Parameter(typeof(Models.Device), "x");
             Expression findExp = null;
 
+            foreach (var prop in input.SearchProperties)
+            {
+                var propExp = Expression.Property(parExp, prop);
+                var search = input.SearchText;
+                var convertedSearch = Convert.ChangeType(search, propExp.Type);
+                var con = Expression.Constant(convertedSearch);
+                switch (convertedSearch)
+                {
+                    case string _:
+                        currContains = info.GetBinaryExpressionForString("ct", propExp, con);
+                        containsExpression = Expression.OrElse(containsExpression, currContains);
+                        break;
+                    case int _:
+                        currContains = info.GetBinaryExpressionForInt("ct", propExp, con);
+                        containsExpression = Expression.OrElse(containsExpression, currContains);
+                        break;
+                    default:
+                        throw new UserFriendlyException("Mrs");
+                }
+               
+            }
 
+            result = info.FilterRuleNested<Models.Device>(parExp, ruleInputs, condition);
+            result = Expression.AndAlso(containsExpression, result);
+
+            //foreach (var ruleInput in ruleInputs)
+            //{
+            //    if (input.Filter.Condition == "and")
+            //    {
+            //        findExp = ConstantExpression.Constant(true);
+            //        binWhereExp =
+            //            info.GetWhereExp<Models.Device>(parExp, ruleInput.Operator, ruleInput.Property, ruleInput.Value);
+            //        findExp = BinaryExpression.AndAlso(findExp, binWhereExp);
+            //    }
+            //    else if (input.Filter.Condition == "or")
+            //    {
+            //        findExp = Expression.Constant(false);
+            //        binWhereExp =
+            //            info.GetWhereExp<Models.Device>(parExp, ruleInput.Operator, ruleInput.Property,
+            //                ruleInput.Value);
+            //        findExp = BinaryExpression.OrElse(findExp, binWhereExp);
+            //    }
+            //}
+
+            whereLambdaExpression = info.GetWhereLambda<Models.Device>(result, parExp);
+
+            Expression<Func<Models.Device, object>> order = null;
+            getAllDevice = getAllDevice.Where(whereLambdaExpression);
+            var sorted = false;
+            foreach (var sorter in sorters)
+            {
+                order = info.OrderThings<Models.Device>(sorter.Property, sorter.Direction);
+                if (sorter.Direction.ToLower().Equals("asc"))
+                {
+                    if (!sorted)
+                    {
+                        getAllDevice = getAllDevice.OrderBy(order);
+                        sorted = true;
+                    }
+                    else
+                    {
+                        getAllDevice = ((IOrderedQueryable<Models.Device>)getAllDevice).ThenBy(order);
+                    }
+                }
+
+                if (sorter.Direction.ToLower().Equals("desc"))
+                {
+                    if (!sorted)
+                    {
+                        getAllDevice = getAllDevice.OrderByDescending(order);
+                        sorted = true;
+                    }
+                    else
+                    {
+                        getAllDevice = ((IOrderedQueryable<Models.Device>)getAllDevice).ThenByDescending(order);
+                    }
+                }
+            }
             
-
-            return result;
-        }
-        // Izlistati Rool rekurzijom
-        public List<Rules> RuleTree(int? parentId)
-        {
-
+            return getAllDevice.ToList();
         }
     }
 }
