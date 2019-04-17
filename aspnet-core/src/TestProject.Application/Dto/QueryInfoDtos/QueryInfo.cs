@@ -21,18 +21,7 @@ namespace TestProject.Dto.QueryInfoDtos
         {
             Expression findPropExpression = par;
 
-            string[] propNamesExp = propName.Split(".");
-            foreach (var propNameExp in propNamesExp)
-            {
-                Type findPropExpType = findPropExpression.Type;
-                if (!CheckIfPropExist(propNameExp, findPropExpType))
-                {
-                    throw new UserFriendlyException("Property ne postoji");
-                }
-
-                findPropExpression = Expression.Property(findPropExpression, propNameExp);
-            }
-
+            findPropExpression = Expression.Property(findPropExpression, propName);
             var type = findPropExpression.Type;
             var convertValue = Convert.ChangeType(value, type);
             var constant = Expression.Constant(convertValue);
@@ -53,19 +42,19 @@ namespace TestProject.Dto.QueryInfoDtos
             return binary;
         }
 
-        private bool CheckIfPropExist(string propNameExp, Type findPropExpType)
-        {
-            var props = findPropExpType.GetProperties();
-            foreach (var prop in props)
-            {
-                if (prop.Name == propNameExp)
-                {
-                    return true;
-                }
-            }
+        //private bool CheckIfPropExist(string propNameExp, Type findPropExpType)
+        //{
+        //    var props = findPropExpType.GetProperties();
+        //    foreach (var prop in props)
+        //    {
+        //        if (prop.Name == propNameExp)
+        //        {
+        //            return true;
+        //        }
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
 
         public Expression<Func<TEntity, bool>> GetWhereLambda<TEntity>(Expression binaryExp,
             ParameterExpression parameter)

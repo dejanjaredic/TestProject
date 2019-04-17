@@ -183,8 +183,9 @@ namespace TestProject.Services.Device
                
             }
 
-            result = info.FilterRuleNested<Models.Device>(parExp, ruleInputs, condition);
-            result = Expression.AndAlso(containsExpression, result);
+            
+            var filterResult = info.FilterRuleNested<Models.Device>(parExp, ruleInputs, condition);
+            result = Expression.AndAlso(containsExpression, filterResult);
 
             //foreach (var ruleInput in ruleInputs)
             //{
