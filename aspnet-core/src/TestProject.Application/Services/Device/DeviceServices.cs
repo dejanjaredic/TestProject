@@ -240,8 +240,8 @@ namespace TestProject.Services.Device
                     }
                 }
             }
-            
-            return getAllDevice.ToList();
+
+            return getAllDevice.Skip(info.Skip).Take(info.Take).ToList();
         }
     }
 }

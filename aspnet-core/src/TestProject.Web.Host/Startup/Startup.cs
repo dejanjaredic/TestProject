@@ -16,6 +16,7 @@ using TestProject.Configuration;
 using TestProject.Identity;
 
 using Abp.AspNetCore.SignalR.Hubs;
+using IdentityServer4.AccessTokenValidation;
 
 namespace TestProject.Web.Host.Startup
 {
@@ -32,6 +33,25 @@ namespace TestProject.Web.Host.Startup
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
+
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultScheme = AuthentificationClass.Cookie;
+                    options.DefaultChallengeScheme = AuthentificationClass.OpenIdConnected;
+                })
+                .AddCookie(AuthentificationClass.Cookie)
+                .AddOpenIdConnect(AuthentificationClass.OpenIdConnected,
+                    options =>
+                    {
+
+                        options.Authority = "https://localhost:49737";
+                        options.ClientId = "hostClient";
+                        options.RequireHttpsMetadata = false;
+                        options.SignInScheme = AuthentificationClass.Cookie;
+                        options.ResponseType = "id_token";
+                        options.SaveTokens = true;
+
+                    });
             // MVC
             services.AddMvc(
                 options => options.Filters.Add(new CorsAuthorizationFilterFactory(_defaultCorsPolicyName))
@@ -96,8 +116,8 @@ namespace TestProject.Web.Host.Startup
             app.UseAuthentication();
 
             app.UseAbpRequestLocalization();
-
-
+            app.UseIdentityServer();
+           
             app.UseSignalR(routes =>
             {
                 routes.MapHub<AbpCommonHub>("/signalr");
