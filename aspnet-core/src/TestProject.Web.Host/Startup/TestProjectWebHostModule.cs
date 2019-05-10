@@ -22,6 +22,7 @@ namespace TestProject.Web.Host.Startup
         public override void Initialize()
         {
             IocManager.RegisterAssemblyByConvention(typeof(TestProjectWebHostModule).GetAssembly());
+
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
@@ -50,8 +51,10 @@ namespace TestProject.Web.Host.Startup
                         options.SignInScheme = AuthentificationClass.Cookie;
                         options.ResponseType = "id_token";
                         options.SaveTokens = true;
+                        
 
                     });
+            
             // MVC
             services.AddMvc(
                 options => options.Filters.Add(new CorsAuthorizationFilterFactory(_defaultCorsPolicyName))
@@ -61,7 +64,7 @@ namespace TestProject.Web.Host.Startup
             AuthConfigurer.Configure(services, _appConfiguration);
 
             services.AddSignalR();
-
+            
             // Configure CORS for angular2 UI
             services.AddCors(
                 options => options.AddPolicy(
@@ -77,6 +80,7 @@ namespace TestProject.Web.Host.Startup
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials()
+                        
                 )
             );
 
@@ -114,9 +118,9 @@ namespace TestProject.Web.Host.Startup
             app.UseStaticFiles();
 
             app.UseAuthentication();
-
+           
             app.UseAbpRequestLocalization();
-            app.UseIdentityServer();
+            
            
             app.UseSignalR(routes =>
             {

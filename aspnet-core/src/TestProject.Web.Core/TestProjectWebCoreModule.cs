@@ -46,7 +46,7 @@ namespace TestProject
                      typeof(TestProjectApplicationModule).GetAssembly()
                  );
 
-            ConfigureTokenAuth();
+            //ConfigureTokenAuth();
         }
 
         private void ConfigureTokenAuth()
