@@ -26,7 +26,10 @@ namespace TestProject.EntityFrameworkCore
         public DbSet<DeviceType> DeviceTypes { get; set; }
         public DbSet<DeviceTypeProperty> DeviceTypeProperties { get; set; }
         public DbSet<DevicePropertyValue> DevicePropertyValues{ get; set; }
+        public DbSet<Employe> Employes { get; set; }
+        public DbSet<Experience> Experiences { get; set; }
+        public DbSet<MyLanguage> MyLanguages { get; set; }
 
-        
+
     }
 }

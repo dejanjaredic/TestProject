@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Abp.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc;
-using TestProject2.Models;
+using Proba.Models;
 
-namespace TestProject2.Controllers
+namespace Proba.Controllers
 {
-    public class HomeController : AbpController
+    public class HomeController : Controller
     {
         public IActionResult Index()
         {

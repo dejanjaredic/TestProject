@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TestProject.EntityFrameworkCore;
 
 namespace TestProject.Migrations
 {
     [DbContext(typeof(TestProjectDbContext))]
-    partial class TestProjectDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190527101342_MultilingualAddedForTest")]
+    partial class MultilingualAddedForTest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1203,11 +1205,15 @@ namespace TestProject.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int?>("EmployeId");
+
                     b.Property<string>("LanguageCode");
 
                     b.Property<string>("Name");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("EmployeId");
 
                     b.ToTable("MyLanguages");
                 });
@@ -1451,7 +1457,7 @@ namespace TestProject.Migrations
             modelBuilder.Entity("TestProject.Models.Experience", b =>
                 {
                     b.HasOne("TestProject.Models.Employe", "Employe")
-                        .WithMany("Experiences")
+                        .WithMany()
                         .HasForeignKey("EmployeId")
                         .OnDelete(DeleteBehavior.Cascade);
 
@@ -1459,6 +1465,13 @@ namespace TestProject.Migrations
                         .WithMany()
                         .HasForeignKey("LanguageId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TestProject.Models.MyLanguage", b =>
+                {
+                    b.HasOne("TestProject.Models.Employe")
+                        .WithMany("Language")
+                        .HasForeignKey("EmployeId");
                 });
 
             modelBuilder.Entity("TestProject.MultiTenancy.Tenant", b =>
